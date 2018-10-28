@@ -1,0 +1,13 @@
+application(){
+	print("
+		Hello World
+	");
+}
+
+class Item{
+	name;
+}
+
+class Potion implements Item{
+	name->Name::name;
+}
