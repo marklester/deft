@@ -8,17 +8,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import deft.grammar.Token;
-import deft.grammar.TokenType;
-import deft.grammar.generated.Expression;
+import deft.grammar.generated.Statement;
 import deft.lang.Interpreter;
 import deft.lang.Parser;
 import deft.lang.Scanner;
-import deft.lang.errors.RuntimeError;
 
 public class Deft {
-  static boolean hadError = false;
-  static boolean hadRuntimeError=false;
-  private static final Interpreter intepreter = new Interpreter();
+  public static final OutputHandler outputHandler = new OutputHandler();
+  private static final Interpreter intepreter = new Interpreter(outputHandler);
 
   public static void main(String[] args) throws IOException {
     if (args.length > 1) {
@@ -37,48 +34,27 @@ public class Deft {
     for (;;) {
       System.out.println("> ");
       run(reader.readLine());
-      hadError = false;
+      outputHandler.setHadError(false);
     }
   }
 
   private static void runFile(String path) throws IOException {
     byte[] bytes = Files.readAllBytes(Paths.get(path));
     run(new String(bytes, StandardCharsets.UTF_8));
-    if (hadError)
+    if (outputHandler.isHadError())
       System.exit(65);
-    if (hadRuntimeError) System.exit(70);
+    if (outputHandler.hadRuntimeError()) System.exit(70);
   }
 
   private static void run(String string) {
     Scanner scanner = new Scanner(string);
     List<Token> tokens = scanner.scanTokens();
     Parser parser = new Parser(tokens);
-    Expression expression = parser.parse();
+    List<Statement> statements = parser.parse();
 
     // Stop if there was a syntax error.
-    if (hadError)
+    if (outputHandler.isHadError())
       return;
-    System.out.println(intepreter.interpret(expression));
-  }
-
-  public static void error(int line, String message) {
-    report(line, "", message);
-  }
-
-  public static void error(Token token, String message) {
-    if (token.type == TokenType.EOF) {
-      report(token.line, " at end", message);
-    } else {
-      report(token.line, " at '" + token.lexeme + "'", message);
-    }
-  }
-
-  private static void report(int line, String where, String message) {
-    System.err.printf("[line %s] Error %s: %s\n", line, where, message);
-  }
-
-  public static void runtimeError(RuntimeError error) {
-    System.err.println(error.getMessage() + "\n[line " + error.getToken().line + "]");
-    hadRuntimeError = true;
+    intepreter.interpret(statements);
   }
 }

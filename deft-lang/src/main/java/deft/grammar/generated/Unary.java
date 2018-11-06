@@ -10,7 +10,7 @@ public class Unary implements Expression {
     this.right = right;
   }
 
-  public <R> R accept(Visitor<R> visitor) {
+  public <R> R accept(ExpressionVisitor<R> visitor) {
     return visitor.visitUnary(this);
   }
 }

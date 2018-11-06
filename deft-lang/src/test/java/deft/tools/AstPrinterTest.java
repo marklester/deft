@@ -9,9 +9,9 @@ import deft.grammar.generated.Binary;
 import deft.grammar.generated.Expression;
 import deft.grammar.generated.Grouping;
 import deft.grammar.generated.Literal;
+import deft.grammar.generated.Statement;
 import deft.grammar.generated.Unary;
 import deft.lang.AstPrinter;
-import deft.lang.Interpreter;
 import deft.lang.Parser;
 import deft.lang.Scanner;
 
@@ -36,23 +36,6 @@ public class AstPrinterTest {
     Scanner scanner = new Scanner(input);
     List<Token> tokens = scanner.scanTokens();
     Parser parser = new Parser(tokens);
-    Expression expr = parser.parse();
-    Assert.assertEquals(expected, printer.print(expr));
-  }
-  
-  @Test
-  public void testInterpret() {
-    String input = "1+3";
-    String expected = "(+ 1.0 3.0)";
-
-    AstPrinter printer = new AstPrinter();
-
-    Scanner scanner = new Scanner(input);
-    List<Token> tokens = scanner.scanTokens();
-    Parser parser = new Parser(tokens);
-    Expression expr = parser.parse();
-    Assert.assertEquals(expected, printer.print(expr));
-    Interpreter intrepreter = new Interpreter();
-    Assert.assertEquals("4", intrepreter.interpret(expr));
+    List<Statement> expr = parser.parse();
   }
 }

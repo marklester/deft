@@ -1,0 +1,44 @@
+interface Shape{
+	Number area();
+	String name();
+}
+
+interface Rectangle extends Shape{
+	Number length();
+	Number width();
+}
+
+class StandardRectangle(Number length,Number width) implements Rectangle{
+	Number area(){
+		return length*width;
+	}
+	
+	String name(){
+	 return "Rectangle"
+	}
+}
+
+class Square(length) implements Rectangle{
+	val rectangle = StandardRectangle(length,length);
+	delegate Rectangle::* to rectangle;
+	//or 	delegate Rectangle::length,width,area to rectangle;
+	//or 	delegate Rectangle to rectangle;
+	override String name(){
+	  return "Square"
+	}	
+
+}
+
+delegate
+* everything ::*
+* only ::<methodname>
+* some ::<methodname>,<methodname>...
+* except
+  except can be done by just redefining the exception method  
+* pattern ::[get*]<- probably not needed
+syntax:
+/*
+	delegate Shape::* to bar;
+	delegate Shape::area to bar.area;
+	delegate Shape::.. to baz;	
+*/

@@ -1,6 +1,8 @@
 package deft.grammar.generated;
 
-public interface Visitor<R> {
+public interface ExpressionVisitor<R> {
+  R visitAssign(Assign expression);
+
   R visitBinary(Binary expression);
 
   R visitGrouping(Grouping expression);
@@ -8,4 +10,6 @@ public interface Visitor<R> {
   R visitLiteral(Literal expression);
 
   R visitUnary(Unary expression);
+
+  R visitVariable(Variable expression);
 }

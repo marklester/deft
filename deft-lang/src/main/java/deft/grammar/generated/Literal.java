@@ -7,7 +7,7 @@ public class Literal implements Expression {
     this.value = value;
   }
 
-  public <R> R accept(Visitor<R> visitor) {
+  public <R> R accept(ExpressionVisitor<R> visitor) {
     return visitor.visitLiteral(this);
   }
 }

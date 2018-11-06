@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import deft.Deft;
+import deft.OutputHandler;
 import deft.grammar.Token;
 import deft.grammar.TokenType;
 
@@ -23,7 +24,9 @@ public class Scanner {
 	private int current = 0;
 	private int line = 1;
 
+	private OutputHandler handler = Deft.outputHandler;
 	public Scanner(String source) {
+	  
 		this.source = source;
 	}
 
@@ -93,6 +96,7 @@ public class Scanner {
 		case ' ':
 		case '\r':
 		case '\t':
+        case '\n':
 			// Ignore whitespace.
 			break;
 		case '"':
@@ -104,7 +108,7 @@ public class Scanner {
 			} else if (isAlpha(c)) {
 				identifier();
 			} else {
-				Deft.error(line, "Unexpected character.");
+				handler.error(line, "Unexpected character["+c+"]");
 			}
 			break;
 		}
@@ -168,7 +172,7 @@ public class Scanner {
 
 		// Unterminated string.
 		if (isAtEnd()) {
-			Deft.error(line, "Unterminated string.");
+			handler.error(line, "Unterminated string.");
 			return;
 		}
 

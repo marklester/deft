@@ -7,8 +7,6 @@ import java.util.List;
  *
  */
 public class TypeDef {
-	public final static String PACKAGE_NAME = "deft.grammar.generated";
-	public final static String SUPER_TYPE = "Expression";
 	private final String name;
 	private final List<FieldDef> fields;
 

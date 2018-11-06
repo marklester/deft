@@ -1,25 +1,45 @@
 package deft.lang;
 
-import deft.Deft;
+import java.util.List;
+import deft.Environment;
+import deft.OutputHandler;
 import deft.grammar.Token;
+import deft.grammar.generated.Assign;
 import deft.grammar.generated.Binary;
+import deft.grammar.generated.BlockStatement;
 import deft.grammar.generated.Expression;
+import deft.grammar.generated.ExpressionStatement;
+import deft.grammar.generated.ExpressionVisitor;
 import deft.grammar.generated.Grouping;
 import deft.grammar.generated.Literal;
+import deft.grammar.generated.PrintStatement;
+import deft.grammar.generated.Statement;
+import deft.grammar.generated.StatementVisitor;
 import deft.grammar.generated.Unary;
-import deft.grammar.generated.Visitor;
+import deft.grammar.generated.Variable;
+import deft.grammar.generated.VariableStatement;
 import deft.lang.errors.RuntimeError;
 
-public class Interpreter implements Visitor<Object> {
+public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<Void> {
+  private Environment environment = new Environment();
+  private OutputHandler handler;
 
-  public String interpret(Expression expression) {
+  public Interpreter(OutputHandler handler) {
+    this.handler = handler;
+  }
+
+  public void interpret(List<Statement> statements) {
     try {
-      Object value = evaluate(expression);
-      return stringify(value);
+      for (Statement statement : statements) {
+        execute(statement);
+      }
     } catch (RuntimeError error) {
-      Deft.runtimeError(error);
+      handler.runtimeError(error);
     }
-    return null;
+  }
+
+  private void execute(Statement statement) {
+    statement.accept(this);
   }
 
   @Override
@@ -140,5 +160,60 @@ public class Interpreter implements Visitor<Object> {
     }
 
     return object.toString();
+  }
+
+  @Override
+  public Void visitExpressionStatement(ExpressionStatement expression) {
+    evaluate(expression.expression);
+    return null;
+  }
+
+  @Override
+  public Void visitPrintStatement(PrintStatement expression) {
+    Object value = evaluate(expression.expression);
+    handler.println(stringify(value));
+    return null;
+  }
+
+  @Override
+  public Void visitVariableStatement(VariableStatement stmt) {
+    Object value = null;
+    if (stmt.initializer != null) {
+      value = evaluate(stmt.initializer);
+    }
+
+    environment.define(stmt.name.lexeme, value);
+    return null;
+  }
+
+  @Override
+  public Object visitVariable(Variable expression) {
+    return environment.get(expression.name);
+  }
+
+  @Override
+  public Object visitAssign(Assign expression) {
+    Object value = evaluate(expression.value);
+    environment.assign(expression.name, value);
+    return value;
+  }
+
+  @Override
+  public Void visitBlockStatement(BlockStatement statement) {
+    executeBlock(statement.statements, new Environment(environment));
+    return null;
+  }
+
+  private void executeBlock(List<Statement> statements, Environment environment) {
+    Environment previous = this.environment;
+    try {
+      this.environment = environment;
+
+      for (Statement statement : statements) {
+        execute(statement);
+      }
+    } finally {
+      this.environment = previous;
+    }
   }
 }

@@ -1,13 +1,15 @@
 package deft.lang;
 
+import deft.grammar.generated.Assign;
 import deft.grammar.generated.Binary;
 import deft.grammar.generated.Expression;
+import deft.grammar.generated.ExpressionVisitor;
 import deft.grammar.generated.Grouping;
 import deft.grammar.generated.Literal;
 import deft.grammar.generated.Unary;
-import deft.grammar.generated.Visitor;
+import deft.grammar.generated.Variable;
 
-public class AstPrinter implements Visitor<String> {
+public class AstPrinter implements ExpressionVisitor<String> {
   public String print(Expression expr) {
     return expr.accept(this);
   }
@@ -46,4 +48,16 @@ public class AstPrinter implements Visitor<String> {
 
     return builder.toString();
   }
+
+  @Override
+  public String visitVariable(Variable expression) {
+    return expression.name.toString();
+  }
+
+  @Override
+  public String visitAssign(Assign expression) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }
